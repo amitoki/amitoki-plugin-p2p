@@ -1,0 +1,34 @@
+name: Plugin
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: signaling/package-lock.json
+      - run: bash scripts/test-signaling.sh
+      - run: npm --prefix signaling run build
+      - run: cargo build --release --locked
+      - uses: actions/checkout@v4
+        with:
+          repository: aida0710/stegrdb
+          ref: c572cc343d39256b473b223bf141feff5d648689
+          path: .packaging
+          persist-credentials: false
+      - run: python3 .packaging/scripts/package-plugin.py target/release/stegrdb-plugin-p2p dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stegrdb-plugin-p2p-x86_64-linux
+          path: dist/

@@ -1,0 +1,25 @@
+[package]
+name = "stegrdb-plugin-p2p"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1"
+bytes = "1"
+futures-util = "0.3"
+fs2 = "0.4"
+libc = "0.2"
+quinn = { version = "0.11", default-features = false, features = ["runtime-tokio", "rustls-ring"] }
+rcgen = "0.13"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+stegrdb-relay = { git = "https://github.com/aida0710/stegrdb", rev = "e1ca4e0298cd7e27279b9b4e9ddd82e5b0ee2bc9" }
+stegrdb-plugin-sdk = { git = "https://github.com/aida0710/stegrdb", rev = "e1ca4e0298cd7e27279b9b4e9ddd82e5b0ee2bc9" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "io-util"] }
+
+[dev-dependencies]
+tempfile = "3"
+uuid = { version = "1", features = ["v4"] }
