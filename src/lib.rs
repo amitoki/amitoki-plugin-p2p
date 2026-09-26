@@ -7,13 +7,13 @@ mod session;
 mod tls;
 mod transport;
 
+use amitoki_plugin_sdk::wire::MAX_BATCH;
+use amitoki_relay::{Delivery, Frame, Receipt, Relay, RelayContext, RelayError, RelayPlugin};
 use async_trait::async_trait;
 use futures_util::future::join_all;
 use options::Options;
 use serde_json::Value;
 use std::sync::{Arc, Mutex, RwLock};
-use stegrdb_plugin_sdk::wire::MAX_BATCH;
-use stegrdb_relay::{Delivery, Frame, Receipt, Relay, RelayContext, RelayError, RelayPlugin};
 use tokio::{sync::Mutex as AsyncMutex, task::JoinHandle};
 use transport::{PeerSender, ServerState};
 

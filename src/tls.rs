@@ -1,4 +1,5 @@
 use crate::options::Options;
+use amitoki_relay::RelayError;
 use quinn::{
     crypto::rustls::{QuicClientConfig, QuicServerConfig},
     Endpoint,
@@ -9,7 +10,6 @@ use rustls::{
 };
 use sha2::{Digest, Sha256};
 use std::{collections::HashMap, sync::Arc, time::Duration};
-use stegrdb_relay::RelayError;
 
 // 接続が途切れた相手への再接続を妨げず、半開き接続を回収する。
 pub const NETWORK_TIMEOUT: Duration = Duration::from_secs(5);
@@ -49,6 +49,7 @@ pub fn create_endpoint(options: &Options) -> Result<TlsEndpoint, RelayError> {
         .with_root_certificates(roots)
         .with_client_auth_cert(certificates, key)
         .map_err(|_| RelayError::permanent("クライアント証明書が不正です"))?;
+    // アプリ名の変更で既存のQUICピアとの通信仕様を変えない。
     server.alpn_protocols = vec![b"stegrdb-p2p/1".to_vec()];
     client.alpn_protocols = server.alpn_protocols.clone();
     let mut transport = quinn::TransportConfig::default();

@@ -1,6 +1,6 @@
 use crate::options::MAX_QUEUE_BYTES;
+use amitoki_relay::{Delivery, Frame, Receipt, RelayError};
 use std::collections::{HashMap, HashSet, VecDeque};
-use stegrdb_relay::{Delivery, Frame, Receipt, RelayError};
 
 // ACK後の再送は直近65536件まで重複除去する。未ACKのフレームは追い出さない。
 const COMPLETED_CAPACITY: usize = 65536;

@@ -1,13 +1,14 @@
+use amitoki_relay::{RelayContext, RelayError};
 use fs2::FileExt;
 use sha2::{Digest, Sha256};
 use std::{
     fs::{DirBuilder, File, OpenOptions},
     os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
 };
-use stegrdb_relay::{RelayContext, RelayError};
 
 pub fn claim_node(context: &RelayContext) -> Result<File, RelayError> {
     let user = unsafe { libc::geteuid() };
+    // stegrdb版との同時起動でも同じノードIDの占有を共有する。
     let directory = std::env::temp_dir().join(format!("stegrdb-p2p-{user}"));
     if let Err(error) = DirBuilder::new().mode(0o700).create(&directory) {
         if error.kind() != std::io::ErrorKind::AlreadyExists {

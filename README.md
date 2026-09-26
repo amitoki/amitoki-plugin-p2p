@@ -1,22 +1,22 @@
-# stegrdb-plugin-p2p
+# amitoki-plugin-p2p
 
-stegrdbの外部プロセス型P2Pプラグイン。相互認証したQUIC接続でEthernetフレームをクライアント間に直接送る。本体の再ビルドは不要。
+amitokiの外部プロセス型P2Pプラグイン。相互認証したQUIC接続でEthernetフレームをクライアント間に直接送る。本体の再ビルドは不要。
 
 任意のNext.jsサーバから接続先を取得できる。サーバへ送るのは部屋名・ノード名・IP/ポート・証明書のfingerprintだけ。パケット本体はVercelやRedisを通らない。
 
 ## 2ノードで始める
 
-stegrdb 0.3以降を使う。GitHubのprivateリポジトリを読めるトークンを`STEGRDB_GITHUB_TOKEN`へ設定して実行する。
+amitoki 0.3以降を使う。公開リポジトリなので、公式配布物の取得にGitHubトークンは不要。
 
 ```bash
-stegrdb plugin add p2p
-stegrdb plugin describe p2p
-~/.local/share/stegrdb/plugins/p2p/stegrdb-plugin-p2p identity --output ./node-a
+amitoki plugin add p2p
+amitoki plugin describe p2p
+~/.local/share/amitoki/plugins/p2p/amitoki-plugin-p2p identity --output ./node-a
 ```
 
 別ノードでも`identity --output ./node-b`を実行する。`cert.der`だけを相手へ渡し、信頼する相手から受け取った証明書を配置する。`key.der`は自ノードだけが保持する。既存の鍵ディレクトリは上書きしない。
 
-ノードaのstegrdb.toml例。アドレスと絶対パスは自分の環境へ変更する。ノードbではnode_id・自分の鍵・相手のアドレスと証明書を入れ替える。
+ノードaのamitoki.toml例。アドレスと絶対パスは自分の環境へ変更する。ノードbではnode_id・自分の鍵・相手のアドレスと証明書を入れ替える。
 
 ```toml
 node_id = "node-a"
@@ -40,16 +40,16 @@ rules = [{ type = "EtherType", value = 2054 }, { type = "EtherType", value = 204
 
 このフィルタ例はARP・IPv4を許可する。中継LANとQUIC用のインターフェースは分ける。3台以上では各ノードのpeersへ自分以外の全相手を設定する。
 
-同じ設定は`stegrdb plugin configure p2p`でも保存できる。順に証明書の絶対パス、秘密鍵の絶対パス、待受アドレス、接続先のJSON配列、キュー上限を入力する（項目順は表示に従う）。非対話では次のように指定する。
+同じ設定は`amitoki plugin configure p2p`でも保存できる。順に証明書の絶対パス、秘密鍵の絶対パス、待受アドレス、接続先のJSON配列、キュー上限を入力する（項目順は表示に従う）。非対話では次のように指定する。
 
 ```bash
-stegrdb plugin configure p2p \
+amitoki plugin configure p2p \
   --set listen=0.0.0.0:7443 \
   --set certificate=/home/user/node-a/cert.der \
   --set private_key=/home/user/node-a/key.der \
   --set 'peers=[{"node_id":"node-b","address":"192.168.1.20:7443","certificate":"/home/user/trusted/node-b.der"}]'
-stegrdb plugin validate p2p
-stegrdb --config stegrdb.toml --check-config
+amitoki plugin validate p2p
+amitoki --config amitoki.toml --check-config
 ```
 
 CLIへ保存した項目は`relay.options`から省略できる。両方に書いた項目はTOML側を優先する。
@@ -64,12 +64,12 @@ CLIへ保存した項目は`relay.options`から省略できる。両方に書�
 - `UPSTASH_REDIS_REST_TOKEN`: Redis用トークン。
 - `SIGNALING_TOKEN`: 32文字以上のランダムな参加トークン。
 
-トークンはVercelの環境変数へ設定し、Gitへコミットしない。`openssl rand -hex 32`で生成できる。同じトークンを各クライアントの`STEGRDB_SIGNALING_TOKEN`へ設定する。
+トークンはVercelの環境変数へ設定し、Gitへコミットしない。`openssl rand -hex 32`で生成できる。同じトークンを各クライアントの`AMITOKI_SIGNALING_TOKEN`へ設定する。
 
 ```toml
 [relay.options.discovery]
 url = "https://your-project.vercel.app/api/peers"
-token_env = "STEGRDB_SIGNALING_TOKEN"
+token_env = "AMITOKI_SIGNALING_TOKEN"
 advertise = "203.0.113.10:7443"
 ```
 
@@ -124,3 +124,9 @@ bash scripts/test-signaling.sh
 試験用Redisを作成して終了時に削除する。認証・部屋分離・ID衝突・過大入力を検証し、実際のQUICで3ノードを接続する。接続情報交換サーバ停止後もフレーム本体が届くことを確認する。
 
 本体の`scripts/vm-lab up --relay p2p`と`test --relay p2p`では、3台の実VMでICMP・TCP・UDPと停止後の再配送を確認する。DBを停止して試験し、使用中のプラグイン削除拒否と、本体を変更しない追加削除も検証する。
+
+## stegrdb版から移行する
+
+旧タグとリリースは保持している。amitoki版は実行ファイル・crate・環境変数の接頭辞をamitokiへ変更した。本体の[移行手順](https://github.com/amitoki/amitoki/blob/main/docs/amitoki-migration.md)に従って設定とプラグインを配置する。
+
+既存の証明書・通信・接続情報・多重起動防止を引き継ぐため、証明書の名前、ALPN、Redisのキー接頭辞、ノード占有ディレクトリはstegrdb版と共通。公開URLと実行ファイル名から独立した識別子として扱う。

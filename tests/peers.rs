@@ -1,8 +1,8 @@
+use amitoki_plugin_p2p::{identity::create_identity, P2pPlugin};
+use amitoki_relay::{Frame, Relay, RelayContext, RelayPlugin};
 use bytes::Bytes;
 use serde_json::{json, Value};
 use std::{net::UdpSocket, sync::Arc};
-use stegrdb_plugin_p2p::{identity::create_identity, P2pPlugin};
-use stegrdb_relay::{Frame, Relay, RelayContext, RelayPlugin};
 
 struct Lab {
     directory: tempfile::TempDir,
@@ -114,7 +114,7 @@ async fn a_certificate_assigned_to_the_wrong_node_is_rejected() {
 async fn discovery_connects_three_peers_and_payloads_continue_after_signaling_stops() {
     use std::time::Duration;
     let lab = Lab::new();
-    let url = std::env::var("STEGRDB_TEST_SIGNALING_URL").unwrap();
+    let url = std::env::var("AMITOKI_TEST_SIGNALING_URL").unwrap();
     let room = uuid::Uuid::new_v4().to_string();
     let mut peers = Vec::new();
     for node in 0..3 {
@@ -122,7 +122,7 @@ async fn discovery_connects_three_peers_and_payloads_continue_after_signaling_st
         for peer in options["peers"].as_array_mut().unwrap() {
             peer.as_object_mut().unwrap().remove("address");
         }
-        options["discovery"] = json!({"url":url,"token_env":"STEGRDB_TEST_SIGNALING_TOKEN","advertise":lab.addresses[node]});
+        options["discovery"] = json!({"url":url,"token_env":"AMITOKI_TEST_SIGNALING_TOKEN","advertise":lab.addresses[node]});
         peers.push(
             P2pPlugin
                 .connect(
@@ -156,7 +156,7 @@ async fn discovery_connects_three_peers_and_payloads_continue_after_signaling_st
         assert_eq!(delivery.len(), 1);
         peer.acknowledge(&[delivery[0].receipt.clone()]).await.unwrap();
     }
-    std::fs::write(std::env::var("STEGRDB_TEST_SIGNALING_STOP_FILE").unwrap(), "stop").unwrap();
+    std::fs::write(std::env::var("AMITOKI_TEST_SIGNALING_STOP_FILE").unwrap(), "stop").unwrap();
     tokio::time::timeout(Duration::from_secs(5), async {
         while reqwest::get(&url).await.is_ok() {
             tokio::time::sleep(DISCOVERY_POLL).await;

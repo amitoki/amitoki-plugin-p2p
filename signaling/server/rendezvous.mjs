@@ -51,6 +51,7 @@ export function createRendezvous({ redis, token }) {
     let registration;
     try { registration = await readRegistration(request); }
     catch { return reply({ error: 'invalid_registration' }, 400); }
+    // 名前の変更後も既存の登録とID衝突検証を引き継ぐ。
     const key = `stegrdb:room:${digest(registration.room).toString('hex')}`;
     try {
       const values = await redis.eval(registrationScript, [key], [registration.node_id, JSON.stringify(registration), String(REGISTRATION_SECONDS), String(MAX_ROOM_PEERS)]);

@@ -3,14 +3,14 @@ use crate::{
     queue::Queue,
     tls::{authenticated_node, NETWORK_TIMEOUT},
 };
+use amitoki_plugin_sdk::wire::{read_message, write_message, MAX_BATCH};
+use amitoki_relay::{Frame, RelayContext, RelayError};
 use quinn::{Connection, Endpoint};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex, RwLock},
 };
-use stegrdb_plugin_sdk::wire::{read_message, write_message, MAX_BATCH};
-use stegrdb_relay::{Frame, RelayContext, RelayError};
 use tokio::{
     sync::{Mutex as AsyncMutex, Semaphore},
     task::JoinSet,

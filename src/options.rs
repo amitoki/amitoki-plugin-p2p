@@ -1,6 +1,6 @@
+use amitoki_relay::{RelayContext, RelayError};
 use serde::Deserialize;
 use std::{collections::HashSet, net::SocketAddr, path::PathBuf};
-use stegrdb_relay::{RelayContext, RelayError};
 
 // ノード当たり64MiBを上限にし、接続先の増加も明示的に制限する。
 pub const MAX_QUEUE_BYTES: usize = 64 * 1024 * 1024;

@@ -3,10 +3,10 @@ use crate::{
     tls::{fingerprint, NETWORK_TIMEOUT},
     transport::ServerState,
 };
+use amitoki_relay::RelayError;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc, time::Duration};
-use stegrdb_relay::RelayError;
 use tokio::task::JoinHandle;
 
 // 登録は60秒で失効する。15秒ごとに更新し、一時的なHTTP障害を許容する。

@@ -19,7 +19,7 @@ test('不正なアドレスと巨大な要求を拒否する', async () => {
   assert.equal((await stub(request({ ...registration, room: 'x'.repeat(5000) }))).status, 400);
 });
 
-const url = process.env.STEGRDB_TEST_REDIS_URL;
+const url = process.env.AMITOKI_TEST_REDIS_URL;
 let client;
 before(async () => { if (url) { client = createClient({ url }); await client.connect(); } });
 after(async () => { if (client) await client.quit(); });

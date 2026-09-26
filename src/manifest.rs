@@ -1,4 +1,4 @@
-use stegrdb_plugin_sdk::{PluginManifest, PROTOCOL_VERSION};
+use amitoki_plugin_sdk::{PluginManifest, PROTOCOL_VERSION};
 pub fn manifest() -> PluginManifest {
     PluginManifest {
         name: "p2p".into(),
